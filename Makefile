@@ -97,6 +97,7 @@ run-symbol-table: test-symbol-table
 # Run with:
 # make clean
 clean:
+	rm -rf poLite.dSYM
 	rm -rf $(BUILD_DIR)
 	rm -f $(TARGET)
 	rm -f $(SYMBOL_TABLE_TEST_TARGET)
