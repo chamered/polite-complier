@@ -59,6 +59,14 @@ declaration:
         }
         free($2); // Free the memory allocated by Flex for the identifier
     }
+    | TYPE_INT IDENTIFIER ASSIGN INT_LITERAL PLS
+    {
+        printf("Parsed int declaration and assignement. Var: %s Value: %d\n", $2, $4);
+        if (!insert_symbol($2, SYMBOL_TYPE_INT, 1)) {
+            fprintf(stderr, "Semantic Error: variable '%s' already declared.\n", $2);
+        }
+        free($2); // Free the memory allocated by Flex for the identifier
+    }
     | TYPE_FLOAT IDENTIFIER PLS
     {
         printf("Parsed float declaration for variable: %s\n", $2);
@@ -67,6 +75,14 @@ declaration:
         }
         free($2);
     }
+    | TYPE_FLOAT IDENTIFIER ASSIGN FLOAT_LITERAL PLS
+    {
+        printf("Parsed float declaration and assignement. Var: %s Value: %f\n", $2, $4);
+        if (!insert_symbol($2, SYMBOL_TYPE_FLOAT, 1)) {
+            fprintf(stderr, "Semantic Error: variable '%s' already declared.\n", $2);
+        }
+        free($2); // Free the memory allocated by Flex for the identifier
+    }
     | TYPE_BOOL IDENTIFIER PLS
     {
         printf("Parsed bool declaration for variable: %s\n", $2);
@@ -74,6 +90,14 @@ declaration:
             fprintf(stderr, "Semantic Error: variable '%s' already declared.\n", $2);
         }
         free($2);
+    }
+    | TYPE_BOOL IDENTIFIER ASSIGN BOOL_LITERAL PLS
+    {
+        printf("Parsed bool declaration and assignement. Var: %s Value: %d\n", $2, $4);
+        if (!insert_symbol($2, SYMBOL_TYPE_BOOL, 1)) {
+            fprintf(stderr, "Semantic Error: variable '%s' already declared.\n", $2);
+        }
+        free($2); // Free the memory allocated by Flex for the identifier
     }
     ;
 
