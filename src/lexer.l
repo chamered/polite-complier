@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../build/parser.tab.h"
+
 int line_number = 1;
 %}
 
@@ -18,46 +20,46 @@ FLOAT           {DIGIT}+"."{DIGIT}+
 
 \n                                      { line_number++; }
 
-"do"[ \t]+"this"                        { printf("DO_THIS\n"); }
+"do"[ \t]+"this"                        { return DO_THIS; }
 
-"int"                                   { printf("TYPE_INT\n"); }
-"float"                                 { printf("TYPE_FLOAT\n"); }
-"bool"                                  { printf("TYPE_BOOL\n"); }
+"int"                                   { return TYPE_INT; }
+"float"                                 { return TYPE_FLOAT; }
+"bool"                                  { return TYPE_BOOL; }
 
-"true"                                  { printf("BOOL_LITERAL(true)\n"); }
-"false"                                 { printf("BOOL_LITERAL(false)\n"); }
+"true"                                  { return BOOL_LITERAL; }
+"false"                                 { return BOOL_LITERAL; }
 
-"if"                                    { printf("IF\n"); }
-"while"                                 { printf("WHILE\n"); }
-"otherwise"                             { printf("OTHERWISE\n"); }
-"say"                                   { printf("SAY\n"); }
-"pls"                                   { printf("PLS\n"); }
-"thanks"                                { printf("THANKS\n"); }
+"if"                                    { return IF; }
+"while"                                 { return WHILE; }
+"otherwise"                             { return OTHERWISE; }
+"say"                                   { return SAY; }
+"pls"                                   { return PLS; }
+"thanks"                                { return THANKS; }
 
-"=="                                    { printf("EQUAL\n"); }
-"!="                                    { printf("NOT_EQUAL\n"); }
-"<="                                    { printf("LESS_EQUAL\n"); }
-">="                                    { printf("GREATER_EQUAL\n"); }
-"&&"                                    { printf("AND\n"); }
-"||"                                    { printf("OR\n"); }
+"=="                                    { return EQUAL; }
+"!="                                    { return NOT_EQUAL; }
+"<="                                    { return LESS_EQUAL; }
+">="                                    { return GREATER_EQUAL; }
+"&&"                                    { return AND; }
+"||"                                    { return OR; }
 
-"="                                     { printf("ASSIGN\n"); }
-"+"                                     { printf("PLUS\n"); }
-"-"                                     { printf("MINUS\n"); }
-"*"                                     { printf("MULTIPLY\n"); }
-"/"                                     { printf("DIVIDE\n"); }
-"<"                                     { printf("LESS\n"); }
-">"                                     { printf("GREATER\n"); }
-"!"                                     { printf("NOT\n"); }
+"="                                     { return ASSIGN; }
+"+"                                     { return PLUS; }
+"-"                                     { return MINUS; }
+"*"                                     { return MULTIPLY; }
+"/"                                     { return DIVIDE; }
+"<"                                     { return LESS; }
+">"                                     { return GREATER; }
+"!"                                     { return NOT; }
 
-"("                                     { printf("LPAREN\n"); }
-")"                                     { printf("RPAREN\n"); }
-","                                     { printf("COMMA\n"); }
+"("                                     { return LPAREN; }
+")"                                     { return RPAREN; }
+","                                     { return COMMA; }
 
-{FLOAT}                                 { printf("FLOAT_LITERAL(%s)\n", yytext); }
-{INT}                                   { printf("INT_LITERAL(%s)\n", yytext); }
+{FLOAT}                                 { return FLOAT_LITERAL; }
+{INT}                                   { return INT_LITERAL; }
 
-{ID}                                    { printf("IDENTIFIER(%s)\n", yytext); }
+{ID}                                    { return IDENTIFIER; }
 
 .                                       {
                                             printf("Lexical error at line %d: unknown character '%s'\n",
@@ -67,7 +69,7 @@ FLOAT           {DIGIT}+"."{DIGIT}+
 
 %%
 
-int main(int argc, char **argv) {
+/*int main(int argc, char **argv) {
     if (argc > 2) {
         fprintf(stderr, "Usage: ./poLite [input_file]\n");
         return 1;
@@ -115,7 +117,7 @@ int main(int argc, char **argv) {
     }
 
     return 0;
-}
+}*/
 
 int yywrap() {
     return 1;
