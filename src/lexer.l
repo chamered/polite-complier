@@ -26,8 +26,8 @@ FLOAT           {DIGIT}+"."{DIGIT}+
 "float"                                 { return TYPE_FLOAT; }
 "bool"                                  { return TYPE_BOOL; }
 
-"true"                                  { return BOOL_LITERAL; }
-"false"                                 { return BOOL_LITERAL; }
+"true"                                  { yylval.int_val = 1; return BOOL_LITERAL; }
+"false"                                 { yylval.int_val = 0; return BOOL_LITERAL; }
 
 "if"                                    { return IF; }
 "while"                                 { return WHILE; }
@@ -56,10 +56,10 @@ FLOAT           {DIGIT}+"."{DIGIT}+
 ")"                                     { return RPAREN; }
 ","                                     { return COMMA; }
 
-{FLOAT}                                 { return FLOAT_LITERAL; }
-{INT}                                   { return INT_LITERAL; }
+{FLOAT}                                 { yylval.float_val = atof(yytext); return FLOAT_LITERAL; }
+{INT}                                   { yylval.int_val = atoi(yytext); return INT_LITERAL; }
 
-{ID}                                    { return IDENTIFIER; }
+{ID}                                    { yylval.str_val = strdup(yytext); return IDENTIFIER; }
 
 .                                       {
                                             printf("Lexical error at line %d: unknown character '%s'\n",
