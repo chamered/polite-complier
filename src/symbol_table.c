@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "symbol_table.h"
 
 // The symbol table starts empty.
@@ -22,10 +21,10 @@ void init_symbol_table() {
 
     Parameters:
     - const char *name: symbol name. It is const because this function should not modify it.
-    - Type type: symbol type.
+    - SymbolType type: symbol type.
     - int initialized: 1 if already initialized, 0 otherwise.
 */
-int insert_symbol(const char *name, Type type, int initialized) {
+int insert_symbol(const char *name, SymbolType type, int initialized) {
     if (symbol_exists(name)) {
         return 0;
     }
@@ -92,17 +91,17 @@ int symbol_exists(const char *name) {
     return lookup_symbol(name) != NULL;
 }
 
-// Converts a Type value to a readable string.
+// Converts a SymbolType value to a readable string.
 // Useful for formatting and cleaner error output.
-const char *type_to_string(Type type) {
+const char *type_to_string(SymbolType type) {
     switch (type) {
-        case TYPE_INT:
+        case SYMBOL_TYPE_INT:
             return "int";
-        case TYPE_FLOAT:
+        case SYMBOL_TYPE_FLOAT:
             return "float";
-        case TYPE_BOOL:
+        case SYMBOL_TYPE_BOOL:
             return "bool";
-        case TYPE_ERROR:
+        case SYMBOL_TYPE_ERROR:
             return "error";
         default:
             return "invalid";
@@ -117,7 +116,7 @@ void print_symbol_table() {
     printf("-------------------------\n");
 
     while (current != NULL) {
-        printf("Name: %s | Type: %s | Initialized: %s\n",
+        printf("Name: %s | SymbolType: %s | Initialized: %s\n",
                current->name,
                type_to_string(current->type),
                current->initialized ? "yes" : "no");

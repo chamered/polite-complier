@@ -9,14 +9,14 @@
     - float
     - bool
 
-    TYPE_ERROR is used to represent semantic/type errors.
+    SYMBOL_TYPE_ERROR is used to represent semantic/type errors.
 */
 typedef enum {
-    TYPE_INT,
-    TYPE_FLOAT,
-    TYPE_BOOL,
-    TYPE_ERROR
-} Type;
+    SYMBOL_TYPE_INT,
+    SYMBOL_TYPE_FLOAT,
+    SYMBOL_TYPE_BOOL,
+    SYMBOL_TYPE_ERROR
+} SymbolType;
 
 /*
     Represents a symbol in the symbol table.
@@ -29,7 +29,7 @@ typedef enum {
 */
 typedef struct Symbol {
     char *name;
-    Type type;
+    SymbolType type;
     int initialized;
     struct Symbol *next;
 } Symbol;
@@ -49,7 +49,7 @@ void init_symbol_table();
     - 1 if the symbol was inserted correctly
     - 0 if the symbol already exists
 */
-int insert_symbol(const char *name, Type type, int initialized);
+int insert_symbol(const char *name, SymbolType type, int initialized);
 
 /*
     Searches for a symbol by name.
@@ -75,14 +75,14 @@ Symbol *lookup_symbol(const char *name);
 int symbol_exists(const char *name);
 
 /*
-    Converts an internal Type value to a readable string.
+    Converts an internal SymbolType value to a readable string.
 
     Example:
     type_to_string(TYPE_INT) returns "int"
 
     Useful for cleaner error messages.
 */
-const char *type_to_string(Type type);
+const char *type_to_string(SymbolType type);
 
 /*
     Prints the current symbol table.
