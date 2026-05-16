@@ -68,13 +68,20 @@ declaration:
         }
         free($2); // Free the memory allocated by Flex for the identifier
     }
-    | TYPE_INT IDENTIFIER ASSIGN INT_LITERAL PLS
+    | TYPE_INT IDENTIFIER ASSIGN expr PLS
     {
-        printf("Parsed int declaration and assignement. Var: %s Value: %d\n", $2, $4);
-        if (!insert_symbol($2, SYMBOL_TYPE_INT, 1)) {
-            fprintf(stderr, "Semantic Error: variable '%s' already declared.\n", $2);
+        if ($4 != SYMBOL_TYPE_ERROR) {
+            if ($4 != SYMBOL_TYPE_INT) {
+                fprintf(stderr, "Semantic Error: type mismatch. Cannot assign %s to new int variable '%s'.\n",
+                        type_to_string($4), $2);
+            } else {
+                printf("Parsed valid int declaration and assignment for '%s'.\n", $2);
+                if (!insert_symbol($2, SYMBOL_TYPE_INT, 1)) {
+                    fprintf(stderr, "Semantic Error: variable '%s' already declared.\n", $2);
+                }
+            }
         }
-        free($2); // Free the memory allocated by Flex for the identifier
+        free($2);
     }
     | TYPE_FLOAT IDENTIFIER PLS
     {
@@ -84,13 +91,20 @@ declaration:
         }
         free($2);
     }
-    | TYPE_FLOAT IDENTIFIER ASSIGN FLOAT_LITERAL PLS
+    | TYPE_FLOAT IDENTIFIER ASSIGN expr PLS
     {
-        printf("Parsed float declaration and assignement. Var: %s Value: %f\n", $2, $4);
-        if (!insert_symbol($2, SYMBOL_TYPE_FLOAT, 1)) {
-            fprintf(stderr, "Semantic Error: variable '%s' already declared.\n", $2);
+        if ($4 != SYMBOL_TYPE_ERROR) {
+            if ($4 != SYMBOL_TYPE_FLOAT) {
+                fprintf(stderr, "Semantic Error: type mismatch. Cannot assign %s to new float variable '%s'.\n",
+                        type_to_string($4), $2);
+            } else {
+                printf("Parsed valid float declaration and assignment for '%s'.\n", $2);
+                if (!insert_symbol($2, SYMBOL_TYPE_FLOAT, 1)) {
+                    fprintf(stderr, "Semantic Error: variable '%s' already declared.\n", $2);
+                }
+            }
         }
-        free($2); // Free the memory allocated by Flex for the identifier
+        free($2);
     }
     | TYPE_BOOL IDENTIFIER PLS
     {
@@ -100,13 +114,20 @@ declaration:
         }
         free($2);
     }
-    | TYPE_BOOL IDENTIFIER ASSIGN BOOL_LITERAL PLS
+    | TYPE_BOOL IDENTIFIER ASSIGN expr PLS
     {
-        printf("Parsed bool declaration and assignement. Var: %s Value: %d\n", $2, $4);
-        if (!insert_symbol($2, SYMBOL_TYPE_BOOL, 1)) {
-            fprintf(stderr, "Semantic Error: variable '%s' already declared.\n", $2);
+        if ($4 != SYMBOL_TYPE_ERROR) {
+            if ($4 != SYMBOL_TYPE_BOOL) {
+                fprintf(stderr, "Semantic Error: type mismatch. Cannot assign %s to new bool variable '%s'.\n",
+                        type_to_string($4), $2);
+            } else {
+                printf("Parsed valid bool declaration and assignment for '%s'.\n", $2);
+                if (!insert_symbol($2, SYMBOL_TYPE_BOOL, 1)) {
+                    fprintf(stderr, "Semantic Error: variable '%s' already declared.\n", $2);
+                }
+            }
         }
-        free($2); // Free the memory allocated by Flex for the identifier
+        free($2);
     }
     ;
 
@@ -131,18 +152,11 @@ assignment:
     ;
 
 say_statement: 
-    SAY LPAREN IDENTIFIER RPAREN PLS
+    SAY LPAREN expr RPAREN PLS
     {
-        printf("Parsed say statement for variable: %s\n", $3);
-
-        Symbol *sym = lookup_symbol($3);
-        if(sym == NULL) {
-            fprintf(stderr, "Semantic Error: cannot say undeclared variable '%s'.\n", $3);
-        } else if(sym->initialized == 0) {
-            fprintf(stderr, "Semantic Error: variable '%s' is used but not initialized.\n", $3);
+        if ($3 != SYMBOL_TYPE_ERROR) {
+            printf("Parsed valid say statement for expression of type: %s.\n", type_to_string($3));
         }
-
-        free($3);
     }
     ;
 
