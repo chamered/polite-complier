@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "symbol_table.h"
 #include "../build/parser.tab.h"
 
 int line_number = 1;

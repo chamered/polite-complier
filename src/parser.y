@@ -17,6 +17,7 @@ void yyerror(const char *s);
     char *str_val;
     int int_val;
     float float_val;
+    SymbolType type_val;
 }
 
 // Tokens coming from the lexer.
@@ -24,6 +25,9 @@ void yyerror(const char *s);
 %token <int_val> INT_LITERAL
 %token <float_val> FLOAT_LITERAL
 %token <int_val> BOOL_LITERAL // 0 = false, 1 = true
+
+%type <type_val> expr
+
 %token TYPE_INT TYPE_FLOAT TYPE_BOOL
 %token ASSIGN
 %token PLUS MINUS MULTIPLY DIVIDE
@@ -32,6 +36,11 @@ void yyerror(const char *s);
 %token LPAREN RPAREN COMMA
 %token IF WHILE OTHERWISE
 %token SAY PLS THANKS DO_THIS
+
+// Priority operators
+// from weakest (bottom) to strongest (top)
+%left PLUS MINUS
+%left MULTIPLY DIVIDE
 
 %%
 
@@ -102,47 +111,19 @@ declaration:
     ;
 
 assignment: 
-    IDENTIFIER ASSIGN INT_LITERAL PLS
+    IDENTIFIER ASSIGN expr PLS
     {
-        printf("Parsed integer assignment to variable: %s\n", $1);
-
         Symbol *sym = lookup_symbol($1);
         if(sym == NULL) {
             fprintf(stderr, "Semantic Error: variable '%s' not declared.\n", $1);
-        } else if(sym->type != SYMBOL_TYPE_INT) {
-            fprintf(stderr, "Semantic Error: type mismatch. Cannot assign int to variable '%s'.\n", $1);
-        } else {
-            sym->initialized = 1;
-        }
-
-        free($1);
-    }
-    | IDENTIFIER ASSIGN FLOAT_LITERAL PLS
-    {
-        printf("Parsed float assignment to variable: %s\n", $1);
-
-        Symbol *sym = lookup_symbol($1);
-        if(sym == NULL) {
-            fprintf(stderr, "Semantic Error: variable '%s' not declared.\n", $1);
-        } else if(sym->type != SYMBOL_TYPE_FLOAT) {
-            fprintf(stderr, "Semantic Error: type mismatch. Cannot assign float to variable '%s'.\n", $1);
-        } else {
-            sym->initialized = 1;
-        }
-
-        free($1);
-    }
-    | IDENTIFIER ASSIGN BOOL_LITERAL PLS
-    {
-        printf("Parsed bool assignment to variable: %s\n", $1);
-
-        Symbol *sym = lookup_symbol($1);
-        if(sym == NULL) {
-            fprintf(stderr, "Semantic Error: variable '%s' not declared.\n", $1);
-        } else if(sym->type != SYMBOL_TYPE_BOOL) {
-            fprintf(stderr, "Semantic Error: type mismatch. Cannot assign bool to variable '%s'.\n", $1);
-        } else {
-            sym->initialized = 1;
+        } else if ($3 != SYMBOL_TYPE_ERROR) {
+            if (sym->type != $3) {
+                fprintf(stderr, "Semantic Error: type mismatch. Cannot assign %s to variable '%s' (type %s).\n",
+                        type_to_string($3), $1, type_to_string(sym->type));
+            } else {
+                printf("Parsed valid assignment to '%s'.\n", $1);
+                sym->initialized = 1;
+            }
         }
 
         free($1);
@@ -162,6 +143,72 @@ say_statement:
         }
 
         free($3);
+    }
+    ;
+
+expr:
+    INT_LITERAL
+    {
+        $$ = SYMBOL_TYPE_INT;
+    }
+    | FLOAT_LITERAL
+    {
+        $$ = SYMBOL_TYPE_FLOAT;
+    }
+    | BOOL_LITERAL
+    {
+        $$ = SYMBOL_TYPE_BOOL;
+    }
+    | IDENTIFIER
+    {
+        Symbol *sym = lookup_symbol($1);
+        if (sym == NULL) {
+            fprintf(stderr, "Semantic Error: variable '%s' is undeclared in expression.\n", $1);
+            $$ = SYMBOL_TYPE_ERROR;
+        } else if (sym->initialized == 0) {
+            fprintf(stderr, "Semantic Error: variable '%s' is used but not initialized.\n", $1);
+            $$ = SYMBOL_TYPE_ERROR;
+        } else {
+            $$ = sym->type;
+        }
+
+        free($1);
+    }
+    | expr PLUS expr
+    {
+        if ($1 == SYMBOL_TYPE_INT && $3 == SYMBOL_TYPE_INT) {
+            $$ = SYMBOL_TYPE_INT;    
+        } else {
+            fprintf(stderr, "Semantic Error: type mismatch in addition expression.\n");
+            $$ = SYMBOL_TYPE_ERROR;
+        }
+    }
+    | expr MINUS expr
+    {
+        if ($1 == SYMBOL_TYPE_INT && $3 == SYMBOL_TYPE_INT) {
+            $$ = SYMBOL_TYPE_INT;
+        } else {
+            fprintf(stderr, "Semantic Error: type mismatch in subtraction expression.\n");
+            $$ = SYMBOL_TYPE_ERROR;
+        }
+    }
+    | expr MULTIPLY expr
+    { 
+        if ($1 == SYMBOL_TYPE_INT && $3 == SYMBOL_TYPE_INT) {
+            $$ = SYMBOL_TYPE_INT;
+        } else {
+            fprintf(stderr, "Semantic Error: type mismatch in multiplication expression.\n");
+            $$ = SYMBOL_TYPE_ERROR;
+        }
+    }
+    | expr DIVIDE expr
+    { 
+        if ($1 == SYMBOL_TYPE_INT && $3 == SYMBOL_TYPE_INT) {
+            $$ = SYMBOL_TYPE_INT;
+        } else {
+            fprintf(stderr, "Semantic Error: type mismatch in division expression.\n");
+            $$ = SYMBOL_TYPE_ERROR;
+        }
     }
     ;
 
