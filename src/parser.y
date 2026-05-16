@@ -104,14 +104,64 @@ declaration:
 assignment: 
     IDENTIFIER ASSIGN INT_LITERAL PLS
     {
-        printf("Parsed integer assignment\n");
+        printf("Parsed integer assignment to variable: %s\n", $1);
+
+        Symbol *sym = lookup_symbol($1);
+        if(sym == NULL) {
+            fprintf(stderr, "Semantic Error: variable '%s' not declared.\n", $1);
+        } else if(sym->type != SYMBOL_TYPE_INT) {
+            fprintf(stderr, "Semantic Error: type mismatch. Cannot assign int to variable '%s'.\n", $1);
+        } else {
+            sym->initialized = 1;
+        }
+
+        free($1);
+    }
+    | IDENTIFIER ASSIGN FLOAT_LITERAL PLS
+    {
+        printf("Parsed float assignment to variable: %s\n", $1);
+
+        Symbol *sym = lookup_symbol($1);
+        if(sym == NULL) {
+            fprintf(stderr, "Semantic Error: variable '%s' not declared.\n", $1);
+        } else if(sym->type != SYMBOL_TYPE_FLOAT) {
+            fprintf(stderr, "Semantic Error: type mismatch. Cannot assign float to variable '%s'.\n", $1);
+        } else {
+            sym->initialized = 1;
+        }
+
+        free($1);
+    }
+    | IDENTIFIER ASSIGN BOOL_LITERAL PLS
+    {
+        printf("Parsed bool assignment to variable: %s\n", $1);
+
+        Symbol *sym = lookup_symbol($1);
+        if(sym == NULL) {
+            fprintf(stderr, "Semantic Error: variable '%s' not declared.\n", $1);
+        } else if(sym->type != SYMBOL_TYPE_BOOL) {
+            fprintf(stderr, "Semantic Error: type mismatch. Cannot assign bool to variable '%s'.\n", $1);
+        } else {
+            sym->initialized = 1;
+        }
+
+        free($1);
     }
     ;
 
 say_statement: 
     SAY LPAREN IDENTIFIER RPAREN PLS
     {
-        printf("Parsed say statement\n");
+        printf("Parsed say statement for variable: %s\n", $3);
+
+        Symbol *sym = lookup_symbol($3);
+        if(sym == NULL) {
+            fprintf(stderr, "Semantic Error: cannot say undeclared variable '%s'.\n", $3);
+        } else if(sym->initialized == 0) {
+            fprintf(stderr, "Semantic Error: variable '%s' is used but not initialized.\n", $3);
+        }
+
+        free($3);
     }
     ;
 
